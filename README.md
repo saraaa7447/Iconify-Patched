@@ -19,7 +19,7 @@
 <p align="center">
 Iconify is an open-source Android mobile application aimed at providing users with the ability to customize various aspects of their device's user interface. 📱
 <br><br>
-Furthermore, the open-source nature of Iconify encourages community contributions and continuous improvement, ensuring a dynamic and evolving user experience. 🤝
+This is a patch on this older version to allow it contonue working on newer versions of Android 15. The reason is that it used to theme certain UI elements differently than the current versions.
 </p>
 <div align="center">
   <br>
