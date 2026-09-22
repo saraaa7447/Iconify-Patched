@@ -13,11 +13,11 @@ fun Any?.isMethodAvailable(methodName: String, vararg parameterTypes: Class<*>?)
         try {
             getDeclaredMethod(methodName, *parameterTypes)
             true
-        } catch (_: NoSuchMethodException) {
+        } catch (ignored: NoSuchMethodException) {
             try {
                 getMethod(methodName, *parameterTypes)
                 true
-            } catch (_: NoSuchMethodException) {
+            } catch (ignored: NoSuchMethodException) {
                 false
             }
         }
@@ -31,16 +31,16 @@ fun Any?.isMethodAvailable(methodName: String, vararg parameterTypes: Class<*>?)
             try {
                 this::class.java.getDeclaredMethod(methodName, *parameterTypes)
                 true
-            } catch (_: NoSuchMethodException) {
+            } catch (ignored: NoSuchMethodException) {
                 try {
                     this::class.java.getMethod(methodName, *parameterTypes)
                     true
-                } catch (_: NoSuchMethodException) {
+                } catch (ignored: NoSuchMethodException) {
                     false
                 }
             }
         }
-    } catch (_: NoSuchMethodException) {
+    } catch (ignored: NoSuchMethodException) {
         false
     }
 }
@@ -51,7 +51,7 @@ fun Class<*>?.isFieldAvailable(fieldName: String): Boolean {
     return try {
         this::class.java.getDeclaredField(fieldName)
         true
-    } catch (_: NoSuchFieldException) {
+    } catch (ignored: NoSuchFieldException) {
         false
     }
 }

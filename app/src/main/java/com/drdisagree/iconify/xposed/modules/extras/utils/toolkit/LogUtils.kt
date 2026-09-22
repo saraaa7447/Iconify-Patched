@@ -1,6 +1,5 @@
-@file:Suppress("Unused")
-
 package com.drdisagree.iconify.xposed.modules.extras.utils.toolkit
+
 
 import android.view.View
 import android.view.ViewGroup
@@ -26,7 +25,7 @@ fun <T : Any> log(clazz: T, message: Any?) {
     XposedBridge.log(
         "Iconify - ${
             clazz.javaClass.simpleName.replace(
-                $$"$Companion",
+                "\$Companion",
                 ""
             )
         }: $message"
@@ -37,7 +36,7 @@ fun <T : Any> log(clazz: T, throwable: Throwable?) {
     XposedBridge.log(
         "Iconify - ${
             clazz.javaClass.simpleName.replace(
-                $$"$Companion",
+                "\$Companion",
                 ""
             )
         }: $throwable"
@@ -48,7 +47,7 @@ fun <T : Any> log(clazz: T, exception: Exception?) {
     XposedBridge.log(
         "Iconify - ${
             clazz.javaClass.simpleName.replace(
-                $$"$Companion",
+                "\$Companion",
                 ""
             )
         }: $exception"
@@ -81,10 +80,10 @@ fun Class<*>?.dumpClass() {
     }
 
     XposedBridge.log("\n\nClass: $name")
-    XposedBridge.log("extends: ${superclass?.name ?: "None"}")
+    XposedBridge.log("extends: ${superclass.name}")
 
     XposedBridge.log("Subclasses:")
-    val scs = classes.toList().union(declaredClasses.toList())
+    val scs = classes
     for (c in scs) {
         XposedBridge.log("\t" + c.name)
     }
@@ -131,10 +130,10 @@ fun Class<*>?.dumpClass() {
 
 fun View.dumpChildViews() {
     if (this is ViewGroup) {
-        logViewInfo(this, 0, true)
+        logViewInfo(this, 0)
         dumpChildViewsRecursive(this, 0)
     } else {
-        logViewInfo(this, 0, true)
+        logViewInfo(this, 0)
     }
 }
 
@@ -151,7 +150,7 @@ private fun dumpChildViewsRecursive(
     }
 }
 
-private fun logViewInfo(view: View, indentationLevel: Int, isSingle: Boolean = false) {
+private fun logViewInfo(view: View, indentationLevel: Int) {
     val indentation = repeatString("\t", indentationLevel)
     val viewName = view.javaClass.simpleName
     val superclassName = view.javaClass.superclass?.simpleName ?: "None"
@@ -161,9 +160,9 @@ private fun logViewInfo(view: View, indentationLevel: Int, isSingle: Boolean = f
     try {
         val viewId = view.id
         resourceIdName = view.context.resources.getResourceName(viewId)
-    } catch (_: Throwable) {
+    } catch (ignored: Throwable) {
     }
-    var logMessage = "$indentation${if (isSingle) "" else "↳ "}$viewName (Extends: $superclassName) - ID: $resourceIdName"
+    var logMessage = "$indentation$viewName (Extends: $superclassName) - ID: $resourceIdName"
     if (childCount > 0) {
         logMessage += " - ChildCount: $childCount"
     }

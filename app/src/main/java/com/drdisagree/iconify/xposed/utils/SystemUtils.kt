@@ -6,12 +6,13 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Process
-import com.drdisagree.iconify.xposed.HookEntry.Companion.enqueueProxyCommand
 import com.drdisagree.iconify.xposed.utils.BootLoopProtector.resetCounter
+import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
 
 class SystemUtils(var mContext: Context) {
 
@@ -34,7 +35,7 @@ class SystemUtils(var mContext: Context) {
         fun sleep(millis: Int) {
             try {
                 Thread.sleep(millis.toLong())
-            } catch (_: Throwable) {
+            } catch (ignored: Throwable) {
             }
         }
 
@@ -49,24 +50,14 @@ class SystemUtils(var mContext: Context) {
 
                     darkSwitching = true
 
-                    enqueueProxyCommand { proxy ->
-                        proxy.runCommand("cmd uimode night ${if (isDark) "no" else "yes"}")
-                    }
+                    Shell.cmd("cmd uimode night ${if (isDark) "no" else "yes"}").exec()
                     delay(1000)
-                    enqueueProxyCommand { proxy ->
-                        proxy.runCommand("cmd uimode night ${if (isDark) "yes" else "no"}")
-                    }
+                    Shell.cmd("cmd uimode night ${if (isDark) "yes" else "no"}").exec()
                     delay(500)
 
                     darkSwitching = false
-                } catch (_: Exception) {
+                } catch (ignored: Exception) {
                 }
-            }
-        }
-
-        fun sleepDevice() {
-            enqueueProxyCommand { proxy ->
-                proxy.runCommand("input keyevent 223")
             }
         }
 
@@ -78,5 +69,7 @@ class SystemUtils(var mContext: Context) {
             }
             Process.killProcess(Process.myPid())
         }
+
+        private val TAG = "Iconify - ${this::class.java.simpleName}: "
     }
 }

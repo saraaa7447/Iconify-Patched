@@ -1,47 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
-    <!-- Network -->
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <!-- Notifications -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
-    <!-- Boot -->
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
-    <!-- Location (Weather only) -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> --> <!-- Re-apply customizations on boot (deprecated) -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- Access to the internet for checking for updates -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> <!-- Schedule a job to check for updates -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" /> <!-- Notify about new iconify updates -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- Access storage for compilation of APKs in .iconify folder -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- Read storage to be able to see what the compilation created -->
     <uses-permission
-        android:name="android.permission.ACCESS_BACKGROUND_LOCATION"
-        tools:ignore="BackgroundLocationPolicy" />
-    <uses-permission android:name="com.drdisagree.iconify.READ_WEATHER" />
-
-    <queries>
-        <package android:name="com.drdisagree.colorblendr" />
-        <package android:name="com.drdisagree.pixellauncherenhanced" />
-        <package android:name="it.dhd.oxygencustomizer.aiplugin" />
-        <package android:name="org.lsposed.manager" />
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" /> <!-- Manage storage to be able to see what the compilation created -->
+    <queries> <!-- Checking for Installed Music Players -->
+        <package android:name="com.maxmpz.audioplayer" />
+        <package android:name="code.name.monkey.retromusic" />
+        <package android:name="com.awedea.nyx" />
+        <package android:name="com.kapp.youtube.final" />
+        <package android:name="com.shadow.blackhole" />
+        <package android:name="in.krosbits.musicolet" />
+        <package android:name="com.google.android.youtube" />
+        <package android:name="com.google.android.apps.youtube.music" />
+        <package android:name="app.revanced.android.youtube" />
+        <package android:name="app.revanced.android.apps.youtube.music" />
     </queries>
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <!-- Weather Updater -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- Weather Updater -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- Weather Updater -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- Get Location for Weather -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- Get Location for Weather -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> <!-- Get Location for Weather -->
+    <uses-permission android:name="com.drdisagree.iconify.READ_WEATHER" /> <!-- Permission for self Weather Provider -->
 
     <application
-        android:name=".app.Iconify"
-        android:allowBackup="true"
+        android:name=".Iconify"
+        android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/derived_app_name"
         android:localeConfig="@xml/locales_config"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Iconify.SplashScreen">
+        android:theme="@style/Theme.Iconify"
+        tools:targetApi="tiramisu">
         <activity
-            android:name=".app.MainActivity"
+            android:name=".ui.activities.OnboardingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activities.MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activities.LocationBrowseActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SplashActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize">
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/Theme.Iconify.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -49,15 +70,100 @@
             </intent-filter>
         </activity>
 
-        <!-- Root Provider Proxy -->
+        <activity-alias
+            android:name=".SplashActivityThemed"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_themed"
+            android:roundIcon="@mipmap/ic_launcher_round_themed"
+            android:targetActivity=".SplashActivity"
+            android:theme="@style/Theme.Iconify.SplashScreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias> <!-- Custom App Icon -->
+        <activity-alias
+            android:name=".SplashActivityRetro"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_retro"
+            android:roundIcon="@mipmap/ic_launcher_round_retro"
+            android:targetActivity=".SplashActivity"
+            android:theme="@style/Theme.Iconify.SplashScreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias> <!-- Custom App Icon -->
+
+        <receiver
+            android:name=".receiver.BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver> <!-- Boot Receiver -->
+        <!--
+        @Deprecated
         <service
-            android:name=".services.providers.RootProviderProxy"
+            android:name=".services.BackgroundService"
+            android:enabled="true"
             android:exported="true"
             tools:ignore="ExportedService" />
-
-        <!-- Quick Settings Tile -->
+        -->
         <service
-            android:name=".services.tiles.RestartSystemUITile"
+            android:name=".services.RootProviderProxy"
+            android:exported="true"
+            tools:ignore="ExportedService" />
+        <service
+            android:name=".services.TileNotchBarKiller"
+            android:exported="true"
+            android:icon="@drawable/ic_tile_notch_bar_killer"
+            android:label="@string/notch_bar_killer_title"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
+        </service> <!-- Quick Settings Tile -->
+        <service
+            android:name=".services.TileMonetEngine"
+            android:exported="true"
+            android:icon="@drawable/ic_tile_monet_engine"
+            android:label="@string/activity_title_monet_engine"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
+        </service> <!-- Quick Settings Tile -->
+        <service
+            android:name=".services.TilePitchBlack"
+            android:exported="true"
+            android:icon="@drawable/ic_tile_pitch_black"
+            android:label="@string/tile_pitch_black"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
+        </service> <!-- Quick Settings Tile -->
+        <service
+            android:name=".services.TileRestartSystemUI"
             android:exported="true"
             android:icon="@drawable/ic_tile_restart_systemui"
             android:label="@string/restart_sysui_title"
@@ -69,56 +175,39 @@
             <meta-data
                 android:name="android.service.quicksettings.TOGGLEABLE_TILE"
                 android:value="true" />
-        </service>
-
-        <!-- Xposed Metadata -->
+        </service> <!-- Quick Settings Tile -->
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="subject_segment" /> <!-- ML Kit download -->
         <meta-data
             android:name="xposedmodule"
-            android:value="true" />
+            android:value="true" /> <!-- xposed meta data -->
         <meta-data
             android:name="xposeddescription"
-            android:value="@string/app_motto" />
+            android:value="@string/app_moto" /> <!-- xposed meta data -->
         <meta-data
             android:name="xposedminversion"
-            android:value="82" />
+            android:value="82" /> <!-- xposed meta data -->
         <meta-data
             android:name="xposedscope"
-            android:resource="@array/module_scope" />
-
-        <!-- Remote Preferences Provider -->
+            android:resource="@array/module_scope" /> <!-- xposed meta data -->
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="subject_segment" /> <!-- ML Kit download -->
         <provider
-            android:name=".services.providers.RemotePrefProvider"
+            android:name=".provider.RemotePrefProvider"
             android:authorities="${applicationId}"
             android:directBootAware="true"
             android:exported="true"
-            tools:ignore="ExportedContentProvider" />
-
-        <!-- Boot Receiver -->
-        <receiver
-            android:name=".services.receivers.BootReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
-        <!-- Package Install Receiver -->
-        <receiver
-            android:name=".services.receivers.PackageInstallReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
-            </intent-filter>
-        </receiver>
-
-        <!-- Weather Content Provider -->
+            tools:ignore="ExportedContentProvider" /> <!-- Remote Preferences Provider -->
         <provider
-            android:name=".core.utils.weather.WeatherContentProvider"
+            android:name=".utils.weather.WeatherContentProvider"
             android:authorities="com.drdisagree.iconify.weatherprovider"
             android:exported="true"
-            tools:ignore="ExportedContentProvider" />
+            tools:ignore="ExportedContentProvider" /> <!-- Weather Content Provider -->
 
-        <!-- Weather icons must be named "<pack_name>_<condition_id>" (e.g., weather_800, weather_foo_800) -->
+        <!-- name is used a prefix +"_" for images e.g. weather_<condition_id>
+             weather_foo_<condition_id> -->
         <activity
             android:name=".google"
             android:exported="false"
@@ -288,15 +377,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".nothing"
-            android:exported="false"
-            android:label="Nothing">
-            <intent-filter>
-                <action android:name="${applicationId}.WeatherIconPack" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
     </application>
+
 </manifest>

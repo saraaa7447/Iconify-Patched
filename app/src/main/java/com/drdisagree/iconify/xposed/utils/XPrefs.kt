@@ -4,20 +4,22 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
-import android.os.Handler
-import android.os.Looper
 import com.crossbowffs.remotepreferences.RemotePreferences
 import com.drdisagree.iconify.BuildConfig
-import com.drdisagree.iconify.data.common.Const.PREF_UPDATE_EXCLUSIONS
+import com.drdisagree.iconify.common.Const.PREF_UPDATE_EXCLUSIONS
+import com.drdisagree.iconify.common.Resources.SHARED_XPREFERENCES
 import com.drdisagree.iconify.xposed.HookEntry
-import com.drdisagree.iconify.xposed.modules.extras.utils.toolkit.log
+import de.robv.android.xposed.XposedBridge.log
 
 object XPrefs {
 
     @SuppressLint("StaticFieldLeak")
     lateinit var Xprefs: ExtendedRemotePreferences
+    private val TAG = "Iconify - ${XPrefs::class.java.simpleName}: "
     private val listener = OnSharedPreferenceChangeListener { _: SharedPreferences?, key: String? ->
-        loadEverything(key)
+        loadEverything(
+            key
+        )
     }
 
     val XprefsIsInitialized: Boolean
@@ -27,35 +29,24 @@ object XPrefs {
         Xprefs = ExtendedRemotePreferences(
             context,
             BuildConfig.APPLICATION_ID,
-            "${BuildConfig.APPLICATION_ID}.preferences",
+            SHARED_XPREFERENCES,
             true
         )
         (Xprefs as RemotePreferences).registerOnSharedPreferenceChangeListener(listener)
-
-        Xprefs.addRecoveryListener {
-            Handler(Looper.getMainLooper()).post {
-                HookEntry.runningMods.forEach { thisMod ->
-                    try {
-                        thisMod.updatePrefs()
-                    } catch (throwable: Throwable) {
-                        log(this@XPrefs, "${thisMod.javaClass.simpleName} -> " + throwable)
-                    }
-                }
-            }
-        }
     }
 
     private fun loadEverything(vararg key: String?) {
-        if (key.isEmpty() ||
-            key[0].isNullOrEmpty() ||
-            PREF_UPDATE_EXCLUSIONS.any { exclusion -> key[0]?.equals(exclusion) == true }
-        ) return
+        if (key.isEmpty() || key[0].isNullOrEmpty() || PREF_UPDATE_EXCLUSIONS.any { exclusion ->
+                key[0]?.equals(exclusion) == true
+            }) {
+            return
+        }
 
         HookEntry.runningMods.forEach { thisMod ->
             try {
                 thisMod.updatePrefs(*key.filterNotNull().toTypedArray())
             } catch (throwable: Throwable) {
-                log(this@XPrefs, "${thisMod.javaClass.simpleName} -> " + throwable)
+                log(TAG + "${thisMod.javaClass.simpleName} -> " + throwable)
             }
         }
     }
